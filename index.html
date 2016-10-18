@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8"/>
+	<title>WebRTC Redux</title>
+
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+
+	<video id="localVideo" autoplay muted></video>
+	<video id="remoteVideo" autoplay></video>
+
+	<button id="local-stream-button">Start Local Stream</button>
+	<button id="end-local-stream-button">End Local Stream</button>
+
+
+	<select id="video-devices">
+		<!-- <option selected disabled>Choose video device</option> -->
+	</select>
+
+	<select id="audio-devices">
+		<!-- <option selected disabled>Choose audio device</option> -->
+	</select>
+
+
+	<script src="client.js"></script>
+</body>
+
+</html>
