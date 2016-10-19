@@ -2,9 +2,6 @@ var localVideo,
 		remoteVideo,
     stream;
 
-var multipleAudio = false;
-var multipleVideo = false;
-
 var videoDeviceSelect = document.querySelector("#video-devices");
 var audioDeviceSelect = document.querySelector("#audio-devices");
 var audioInputs = new Array();
@@ -22,74 +19,79 @@ var getDevices = navigator.mediaDevices.enumerateDevices()
 			videoInputs.push(devices[i]);
 		}
 	}
-})
-.then(function() {
-	if(audioInputs.length > 1) { multipleAudio = true; }
-	if(videoInputs.length > 1) { multipleVideo = true; }
 });
 
 // getDevices = getDevices.then(function() { console.log(multipleAudio + " " + multipleVideo); });
 
-var buildDropdowns = getDevices.then(function(){
-	for(var i=0; i<audioInputs.length; i++) {
-		audioDeviceSelect.add(new Option(audioInputs[i].label));
-		audioDeviceSelect.options[i].value = audioInputs[i].deviceId;
-	}
-	for(var j=0; j<videoInputs.length; j++) {
-		videoDeviceSelect.add(new Option(videoInputs[j].label));
-		videoDeviceSelect.options[j].value = videoInputs[j].deviceId;
-	}
-});
+function buildDropdowns() {
+	getDevices.then(function(){
+		for(var i=0; i<audioInputs.length; i++) {
+			audioDeviceSelect.add(new Option(audioInputs[i].label));
+			audioDeviceSelect.options[i].value = audioInputs[i].deviceId;
+		}
+		for(var j=0; j<videoInputs.length; j++) {
+			videoDeviceSelect.add(new Option(videoInputs[j].label));
+			videoDeviceSelect.options[j].value = videoInputs[j].deviceId;
+		}
+	});
+	return getDevices;
+}
 
-var constraints = { audio: true, video: { width: {max: 480}, height: {max: 360}} };
+var constraints; // = { audio: true, video: {width: {max: 480}, height: {max: 360}}};
 
-var setConstraints = buildDropdowns.then(function() {
-	constraints = {
-		audio: {
-			exact: {
-				sourceId: audioDeviceSelect.value
-			}
-		},
-		video: {
-			width: {max: 480},
-			height: {max: 360},
-			exact: {
-				sourceId: videoDeviceSelect.value
+function setConstraints() {
+	buildDropdowns().then(function() {
+		constraints = {
+			audio: {
+				exact: {
+					sourceId: audioDeviceSelect.value
+				}
+			},
+			video: {
+				width: {max: 480},
+				height: {max: 360},
+				exact: {
+					sourceId: videoDeviceSelect.value
+				}
 			}
 		}
-	}
-});
+	})
+	return getDevices;
+};
+
 
 
 audioDeviceSelect.onchange = function() {
 	constraints.audio.exact.sourceId = audioDeviceSelect.value;
+	setupLocalStream();
+}
 
-	navigator.mediaDevices.getUserMedia(constraints)
-	.then(function(mediaStream) {
-	  console.log(mediaStream);
-	  localVideo = document.querySelector("#localVideo");
-	  localVideo.src = window.URL.createObjectURL(mediaStream);
-	  //localVideo.pause();
-	  // localVideo.onloadedmetadata ??
-	})
-	.then(function() { console.log(constraints); })
-	.catch(function(err) { console.log(err.name); });
+videoDeviceSelect.onchange = function() {
+	constraints.video.exact.sourceId = videoDeviceSelect.value;
+	setupLocalStream();
 }
 
 
+function setupLocalStream() {
+	setConstraints().then(function(){
+		navigator.mediaDevices.getUserMedia(constraints)
+		.then(function(mediaStream) {
+		  console.log(mediaStream);
+		  localVideo = document.querySelector("#localVideo");
+		  localVideo.src = window.URL.createObjectURL(mediaStream);
+		  //localVideo.pause();
+		  // localVideo.onloadedmetadata ??
+		})
+		.then(function() { console.log(constraints); })
+		.catch(function(err) { console.log(err.name); });
+	});
+}
 
-//var startLocalStream = setConstraints.then(function(){
-	navigator.mediaDevices.getUserMedia(constraints)
-	.then(function(mediaStream) {
-	  console.log(mediaStream);
-	  localVideo = document.querySelector("#localVideo");
-	  localVideo.src = window.URL.createObjectURL(mediaStream);
-	  //localVideo.pause();
-	  // localVideo.onloadedmetadata ??
-	})
-	.then(function() { console.log(constraints); })
-	.catch(function(err) { console.log(err.name); });
-//});
+setupLocalStream();
+
+
+
+
 
 
 // video: { width: {max: 480}, height: {max: 360}}
