@@ -94,6 +94,11 @@ setupLocalStream();
 
 
 
+
+
+
+
+
 // video: { width: {max: 480}, height: {max: 360}}
 
 // getDevices
